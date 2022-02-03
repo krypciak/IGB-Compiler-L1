@@ -119,8 +119,6 @@ public class IGB_Compiler_L1 {
 		return sb.toString();
 	}
 
-	private int fileIndex;
-
 	private final static int MULTIPLIER = 1000;
 	public final static int IGNORE_INT = Integer.MIN_VALUE + 47328;
 
@@ -128,10 +126,9 @@ public class IGB_Compiler_L1 {
 
 	public IGB_Compiler_L1() { syntax = getSyntax(); }
 
-	public int[][][] compile(String[][] inputs, String[] paths, int memorySize) {
+	public int[][][] compile(String[][] inputs, String[] paths, int pesSize) {
 		IGB_L1[] igb_l1_Arr = new IGB_L1[inputs.length];
 		for (int i = 0; i < inputs.length; i++) {
-			fileIndex = i;
 			String[] in = inputs[i];
 			List<Instruction> list = new ArrayList<>();
 			if(!in[0].toLowerCase().startsWith("startline"))
@@ -140,17 +137,17 @@ public class IGB_Compiler_L1 {
 			if(startline == null)
 				throw new IGB_Compiler_L1_Exception("After \"Startline \" you need to put an valid integer.");
 			for (int x = 1; x < in.length; x++) {
-				Instruction inst = stringToInstruction(inputs[i][x]);
+				Instruction inst = stringToInstruction(inputs[i][x], x);
 				if(inst != null)
 					list.add(inst);
 			}
 			igb_l1_Arr[i] = new IGB_L1(startline, list.toArray(Instruction[]::new));
 		}
 
-		return compile(igb_l1_Arr, paths, memorySize);
+		return compile(igb_l1_Arr, paths, pesSize);
 	}
 
-	public Instruction stringToInstruction(String str) {
+	public Instruction stringToInstruction(String str, int line) {
 		if(str.isBlank())
 			return null;
 
@@ -169,7 +166,7 @@ public class IGB_Compiler_L1 {
 		case "pixel" -> Pixel;
 		case "device" -> Device;
 		case "math" -> Math;
-		default -> throw new IGB_Compiler_L1_Exception(fileIndex, "");
+		default -> throw new IGB_Compiler_L1_Exception("Syntax error at line " + (line + 1) + ": " + sp[0]);
 		};
 
 		Instruction inst = new Instruction(type, sp.length - 1);
@@ -190,7 +187,7 @@ public class IGB_Compiler_L1 {
 		return inst;
 	}
 
-	public int[][][] compile(IGB_L1[] igb_l1_Arr, String[] paths, int memorySize) {
+	public int[][][] compile(IGB_L1[] igb_l1_Arr, String[] paths, int pesSize) {
 		IGB_Compiler_L1_Exception.paths = paths;
 		Pair<Integer[], HashMap<String, Integer>> pair = getAllPointers(igb_l1_Arr);
 		HashMap<String, Integer> pointers = pair.getSecond();
@@ -201,12 +198,12 @@ public class IGB_Compiler_L1 {
 		final int[][][] ret;
 		final int[][] pes;
 
-		if(memorySize == -1) {
+		if(pesSize == -1) {
 			ret = new int[igb_l1_Arr.length][][];
 			pes = null;
 		} else {
 			ret = null;
-			pes = new int[memorySize][8];
+			pes = new int[pesSize][];
 		}
 
 		for (int i = 0; i < igb_l1_Arr.length; i++) {

@@ -7,7 +7,7 @@ If|0 !=|5 i @ d P
 
 Init|1 d i
 Copy|2 i i
-Add|3 d @ d i
+Add|3 i @ d i
 
 
 Cell|4 Jump|0 P
