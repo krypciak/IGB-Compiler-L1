@@ -81,11 +81,25 @@ public class Instruction {
 		i.argD[2] = (double) cell;
 		return i;
 	}
+	
+	public static Instruction Cell_Jump(String pointer) {
+		Instruction i = new Instruction(Cell, 2);
+		i.argS[1] = "Jump";
+		i.argS[2] = pointer;
+		return i;
+	}
 
 	public static Instruction Cell_Call(int cell) {
 		Instruction i = new Instruction(Cell, 2);
 		i.argS[1] = "Call";
 		i.argD[2] = (double) cell;
+		return i;
+	}
+	
+	public static Instruction Cell_Call(String pointer) {
+		Instruction i = new Instruction(Cell, 2);
+		i.argS[1] = "Call";
+		i.argS[2] = pointer;
 		return i;
 	}
 
