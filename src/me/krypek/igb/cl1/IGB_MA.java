@@ -13,6 +13,9 @@ public class IGB_MA {
 	public static final int IF_TEMP1_THREAD2 = 13;
 	public static final int IF_TEMP2_THREAD2 = 14;
 
+	public static final int TEMP_CELL_1 = 15;
+	
+	public static final int CHARLIB_TEMP_START = 21;
 	public static final int CHARLIB_CHAR = 56;
 	public static final int CHARLIB_X = 57;
 	public static final int CHARLIB_Y = 58;
