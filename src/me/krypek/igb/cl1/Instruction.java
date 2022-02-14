@@ -191,6 +191,19 @@ public class Instruction {
 		return i;
 	}
 
+	public static Instruction Math(char ope, int cell1, boolean isCell, double val2, int cellToWrite) {
+		if(ope == '+')
+			return Add(cell1, isCell, val2, cellToWrite);
+
+		Instruction i = new Instruction(Math, 5);
+		i.argS[0] = ope + "";
+		i.argD[1] = (double) cell1;
+		i.argB[2] = isCell;
+		i.argD[3] = val2;
+		i.argD[4] = (double) cellToWrite;
+		return i;
+	}
+
 	public static Instruction Math_Random(double min, double max, int cellToWrite) {
 		Instruction i = new Instruction(Math, 4);
 		i.argS[0] = "R";
