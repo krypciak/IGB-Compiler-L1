@@ -1,8 +1,12 @@
 package me.krypek.igb.cl1;
 
-import java.util.Arrays;
+import java.io.Serializable;
 
-public class IGB_L1 {
+import me.krypek.utils.Utils;
+
+public class IGB_L1 implements Serializable {
+	private static final long serialVersionUID = 6013593729041470734L;
+
 	public final Instruction[] code;
 	public final int startline;
 
@@ -12,5 +16,5 @@ public class IGB_L1 {
 	}
 
 	@Override
-	public String toString() { return startline + ", " + Arrays.toString(code); }
+	public String toString() { return "Startline " + startline + "\n" + Utils.arrayToString(code, "\n"); }
 }

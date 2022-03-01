@@ -27,7 +27,7 @@ import me.krypek.freeargparser.ParserBuilder;
 import me.krypek.utils.Pair;
 import me.krypek.utils.Utils;
 
-public class IGB_Compiler_L1 {
+public class IGB_CL1 {
 
 	public static void main(String[] args) {
 
@@ -51,7 +51,7 @@ public class IGB_Compiler_L1 {
 		for (int i = 0; i < inputs.length; i++)
 			inputs[i] = Utils.readFromFileToArray(filePaths[i]);
 
-		int[][][] compiled = new IGB_Compiler_L1().compile(inputs, filePaths, memorySize);
+		int[][][] compiled = new IGB_CL1().compile(inputs, filePaths, memorySize);
 
 		File outputFile = new File(fileOutput);
 		if(!fileOutput.equals("")) {
@@ -124,7 +124,7 @@ public class IGB_Compiler_L1 {
 
 	private String[][] syntax;
 
-	public IGB_Compiler_L1() { syntax = getSyntax(); }
+	public IGB_CL1() { syntax = getSyntax(); }
 
 	public int[][][] compile(String[][] inputs, String[] paths, int pesSize) {
 		IGB_L1[] igb_l1_Arr = new IGB_L1[inputs.length];
@@ -153,7 +153,7 @@ public class IGB_Compiler_L1 {
 
 		if(str.startsWith(":")) {
 			Instruction inst = new Instruction(Pointer, 0);
-			inst.argS[0] = str.substring(1);
+			inst.arg[0].set(str.substring(1));
 			return inst;
 		}
 		String[] sp = str.split(" ");
@@ -173,15 +173,15 @@ public class IGB_Compiler_L1 {
 		for (int i = 1; i < sp.length; i++) {
 			String arg = sp[i];
 			if(arg.equals("n"))
-				inst.argB[i - 1] = false;
+				inst.arg[i - 1].set(false);
 			else if(arg.equals("c"))
-				inst.argB[i - 1] = true;
+				inst.arg[i - 1].set(true);
 			else {
 				Double val = Utils.parseDouble(sp[i]);
 				if(val == null)
-					inst.argS[i - 1] = sp[i];
+					inst.arg[i - 1].set(sp[i]);
 				else
-					inst.argD[i - 1] = val;
+					inst.arg[i - 1].set(val);
 			}
 		}
 		return inst;
@@ -230,18 +230,16 @@ public class IGB_Compiler_L1 {
 					int[] potential = new int[8];
 					if(ret != null)
 						Arrays.fill(potential, IGNORE_INT);
-					if(ins.toString().equals("Pixel Cache Raw 0.0")) {
-						System.out.println();
-					}
+
 					for (int j = 1; j < syntax[h].length; j++) {
 						int _j = j - 1;
 
 						String syntaxS = syntax[h][j];
 
 						if(syntaxS.equals("@")) {
-							if(ins.argB[_j] == null)
+							if(!ins.arg[_j].isBool())
 								continue syntaxFor;
-							if(ins.argB[_j]) {
+							if(ins.arg[_j].bool()) {
 								potential[j] = 1;
 								prevCell = true;
 							} else {
@@ -250,32 +248,32 @@ public class IGB_Compiler_L1 {
 							}
 
 						} else if(syntaxS.equals("d")) {
-							if(ins.argD[_j] == null)
+							if(ins.arg[_j].isValue())
 								continue syntaxFor;
-							potential[j] = (int) (prevCell ? ins.argD[_j] : ins.argD[_j] * MULTIPLIER);
+							potential[j] = (int) (prevCell ? ins.arg[_j].val() : ins.arg[_j].val() * MULTIPLIER);
 							prevCell = false;
 
 						} else if(syntaxS.equals("i")) {
-							if(ins.argD[_j] == null)
+							if(!ins.arg[_j].isValue())
 								continue syntaxFor;
 
-							potential[j] = (int) (double) ins.argD[_j];
+							potential[j] = (int) ins.arg[_j].val();
 							prevCell = false;
 
 						} else if(syntaxS.equals("P")) {
-							if(ins.argS[_j] != null) {
-								if(ins.argS[_j].charAt(0) != ':')
+							if(ins.arg[_j].str() != null) {
+								if(ins.arg[_j].str().charAt(0) != ':')
 									throw new IGB_Compiler_L1_Exception(i, "Line: " + (x + 2) + "  Pointer name has to start with \':\'.");
 
-								String pointerName = ins.argS[_j].substring(1);
+								String pointerName = ins.arg[_j].str().substring(1);
 								int pointerCell = pointers.getOrDefault(pointerName, -1);
 								if(pointerCell == -1)
 									throw new IGB_Compiler_L1_Exception(i, "Line: " + (x + 2) + "  Pointer: \"" + pointerName + "\" doesn't exist.");
 								potential[j] = pointerCell;
-							} else if(ins.argD[_j] != null)
-								potential[j] = (int) (double) ins.argD[_j];
+							} else if(ins.arg[_j].isValue())
+								potential[j] = (int) ins.arg[_j].val();
 
-						} else if(syntaxS.substring(0, syntaxS.indexOf('|')).equals(ins.argS[_j])) {
+						} else if(syntaxS.substring(0, syntaxS.indexOf('|')).equals(ins.arg[_j].str())) {
 							potential[j] = Utils.parseInt(syntaxS.substring(syntaxS.indexOf('|') + 1));
 							prevCell = false;
 						} else
@@ -335,14 +333,16 @@ public class IGB_Compiler_L1 {
 		int pointerCount = 0;
 		for (int i = 0; i < input.length; i++)
 			if(input[i].type == Pointer) {
-				if(pointers.containsKey(input[i].argS[0]))
-					throw new IGB_Compiler_L1_Exception(file, "Line: " + (i + 2) + "  Pointer: \"" + input[i].argS[0] + "\" already exists.");
+				if(pointers.containsKey(input[i].arg[0].str()))
+					throw new IGB_Compiler_L1_Exception(file, "Line: " + (i + 2) + "  Pointer: \"" + input[i].arg[0].str() + "\" already exists.");
 				pointerCount++;
-				pointers.put(input[i].argS[0], calcPointerLine(i, pointers.size(), startline));
+				pointers.put(input[i].arg[0].str(), calcPointerLine(i, pointers.size(), startline));
 			}
 
 		return new Pair<>(pointerCount, pointers);
 	}
 
 	private int calcPointerLine(int line, int mapSize, int startline) { return line - mapSize - 1 + startline; }
+
+	public static int getMCRGBValue(int r, int g, int b) { return (r << 16) + (g << 8) + b; }
 }
