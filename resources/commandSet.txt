@@ -17,8 +17,8 @@ Cell|4 Return|2
 Pixel|5 Cache|-1 @ i @ i @ i
 Pixel|5 Cache|-1 Raw|-1 i
 Pixel|5 Cache|-1 i
-Pixel|5 @ d @ d
-Pixel|5 @ d @ d i
+Pixel|5 @ i @ i
+Pixel|5 @ i @ i i
 
 Device|6 CoreWait|0 i
 Device|6 ScreenUpdate|1

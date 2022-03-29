@@ -17,7 +17,10 @@ public class Instruction implements Serializable {
 
 	@Override
 	public String toString() {
+		if(type == Pointer)
+			return arg[0].str();
 		StringBuilder sb = new StringBuilder(type.toString());
+
 		for (int i = 0; i < argLen; i++) { sb.append(" "); sb.append(arg[i].toString()); }
 		return sb.toString();
 	}
@@ -249,6 +252,7 @@ public class Instruction implements Serializable {
 	public static Instruction Pointer(String name) {
 		Instruction i = new Instruction(Pointer, 1);
 		i.arg[0] = get(name);
+
 		return i;
 	}
 }

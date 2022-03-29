@@ -29,7 +29,13 @@ import me.krypek.utils.Utils;
 
 public class IGB_CL1 {
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws FileNotFoundException {
+
+		/*
+		 * int[][][] compiled1 = new IGB_CL1().compile(new IGB_L1[] { new IGB_L1(321,
+		 * new Instruction[] { Instruction.Init(10, 1) }) }, new String[] { "imposter"
+		 * }, -1); System.out.println(Arrays.deepToString(compiled1));
+		 */
 
 		//@f:off
 		ParsedData data = new ParserBuilder()
@@ -42,7 +48,7 @@ public class IGB_CL1 {
 		//@f:on
 
 		final String[] filePaths = data.getStringArray("cp");
-		final String fileOutput = data.getStringOrDef("op", "");
+		final String fileOutput = data.getStringOrDef("op", null);
 		final boolean readableOutput = data.has("ro");
 		final int memorySize = data.getIntOrDef("ms", -1);
 		final boolean quiet = data.has("q");
@@ -53,19 +59,17 @@ public class IGB_CL1 {
 
 		int[][][] compiled = new IGB_CL1().compile(inputs, filePaths, memorySize);
 
-		File outputFile = new File(fileOutput);
-		if(!fileOutput.equals("")) {
-
-			if(outputFile.isDirectory())
-				outputFile.mkdirs();
-			else
-				outputFile.getParentFile().mkdirs();
-		}
-		if(memorySize == -1) {
-
-			if(readableOutput)
-				for (int i = 0; i < compiled.length; i++) {
-					try {
+		if(fileOutput != null) {
+			File outputFile = new File(fileOutput);
+			if(!fileOutput.equals("")) {
+				if(outputFile.isDirectory())
+					outputFile.mkdirs();
+				else
+					outputFile.getParentFile().mkdirs();
+			}
+			if(memorySize == -1) {
+				if(readableOutput) {
+					for (int i = 0; i < compiled.length; i++) {
 						String out = intArrToString(compiled[i]);
 
 						String name = new File(filePaths[i]).getName();
@@ -76,30 +80,34 @@ public class IGB_CL1 {
 						PrintWriter pw = new PrintWriter(path);
 						pw.println(out);
 						pw.close();
+					}
+				} else {
+					for (int i = 0; i < compiled.length; i++) {
+						String name = new File(filePaths[i]).getName();
+						String path = outputFile.getAbsolutePath() + "/" + Utils.getFileNameWithoutExtension(name) + ".igb_bin";
 
-						if(!quiet) {
-							System.out.println(path + "\n" + out);
-						}
-					} catch (FileNotFoundException e) {
-						e.printStackTrace();
+						new File(path).getParentFile().mkdirs();
+						Utils.serialize(compiled[i], path);
 					}
 				}
-			else {
-				for (int i = 0; i < compiled.length; i++) {
-					String name = new File(filePaths[i]).getName();
-					String path = outputFile.getAbsolutePath() + "/" + Utils.getFileNameWithoutExtension(name) + ".igb_bin";
+			} else {
+				String name = new File(filePaths[0]).getName();
+				String path = outputFile.getAbsolutePath() + "/"
+						+ (name.endsWith(".igb_l1") ? Utils.getFileNameWithoutExtension(name) + ".igb_pes" : name);
 
-					new File(path).getParentFile().mkdirs();
-					Utils.serialize(compiled[i], path);
-				}
+				new File(path).getParentFile().mkdirs();
+				Utils.serialize(compiled[0], path);
+
 			}
-		} else {
-			String name = new File(filePaths[0]).getName();
-			String path = outputFile.getAbsolutePath() + "/" + (name.endsWith(".igb_l1") ? Utils.getFileNameWithoutExtension(name) + ".igb_pes" : name);
-
-			new File(path).getParentFile().mkdirs();
-			Utils.serialize(compiled[0], path);
 		}
+		if(!quiet) {
+			for (int i = 0; i < compiled.length; i++) {
+				String out = intArrToString(compiled[i]);
+				String name = new File(filePaths[i]).getName();
+				System.out.println(name + ":\n" + out);
+			}
+		}
+
 	}
 
 	private static String intArrToString(int[][] arr) {
@@ -125,6 +133,37 @@ public class IGB_CL1 {
 	private String[][] syntax;
 
 	public IGB_CL1() { syntax = getSyntax(); }
+
+	public int[][][] compile(String[][] inputs, String[] paths, IGB_L1[] l1A, String[] names, int pesSize) {
+		assert inputs.length == paths.length;
+		assert l1A.length == names.length;
+
+		IGB_L1[] l1_Arr = new IGB_L1[inputs.length + l1A.length];
+		String[] names1 = new String[l1_Arr.length];
+		for (int i = 0; i < inputs.length; i++) {
+			String[] in = inputs[i];
+			List<Instruction> list = new ArrayList<>();
+			if(!in[0].toLowerCase().startsWith("startline"))
+				throw new IGB_Compiler_L1_Exception("Code file has to start with \"Startline *startline*\".");
+			Integer startline = Utils.parseInt(in[0].substring(in[0].indexOf(' ') + 1));
+			if(startline == null)
+				throw new IGB_Compiler_L1_Exception("After \"Startline \" you need to put an valid integer.");
+			for (int x = 1; x < in.length; x++) {
+				Instruction inst = stringToInstruction(inputs[i][x], x);
+				if(inst != null)
+					list.add(inst);
+			}
+			l1_Arr[i] = new IGB_L1(startline, list.toArray(Instruction[]::new));
+			names1[i] = new File(paths[i]).getName();
+		}
+		for (int i = inputs.length; i < l1_Arr.length; i++) {
+			l1_Arr[i] = l1A[i - inputs.length];
+			names1[i] = names[i - inputs.length];
+
+		}
+
+		return compile(l1_Arr, paths, pesSize);
+	}
 
 	public int[][][] compile(String[][] inputs, String[] paths, int pesSize) {
 		IGB_L1[] igb_l1_Arr = new IGB_L1[inputs.length];
@@ -152,9 +191,7 @@ public class IGB_CL1 {
 			return null;
 
 		if(str.startsWith(":")) {
-			Instruction inst = new Instruction(Pointer, 0);
-			inst.arg[0].set(str.substring(1));
-			return inst;
+			return Instruction.Pointer(str);
 		}
 		String[] sp = str.split(" ");
 		InstType type = switch (sp[0].toLowerCase()) {
@@ -173,15 +210,15 @@ public class IGB_CL1 {
 		for (int i = 1; i < sp.length; i++) {
 			String arg = sp[i];
 			if(arg.equals("n"))
-				inst.arg[i - 1].set(false);
+				inst.arg[i - 1] = new InstArgBool(false);
 			else if(arg.equals("c"))
-				inst.arg[i - 1].set(true);
+				inst.arg[i - 1] = new InstArgBool(true);
 			else {
 				Double val = Utils.parseDouble(sp[i]);
 				if(val == null)
-					inst.arg[i - 1].set(sp[i]);
+					inst.arg[i - 1] = new InstArgStr(sp[i]);
 				else
-					inst.arg[i - 1].set(val);
+					inst.arg[i - 1] = new InstArgVal(val);
 			}
 		}
 		return inst;
@@ -223,8 +260,9 @@ public class IGB_CL1 {
 				}
 
 				syntaxFor: for (int h = 0; h < syntax.length; h++) {
-					if(ins.type != typeSyntax[h])
+					if(ins.type != typeSyntax[h] || ins.arg.length + 1 != syntax[h].length)
 						continue;
+
 					boolean prevCell = false;
 
 					int[] potential = new int[8];
@@ -248,7 +286,7 @@ public class IGB_CL1 {
 							}
 
 						} else if(syntaxS.equals("d")) {
-							if(ins.arg[_j].isValue())
+							if(!ins.arg[_j].isValue())
 								continue syntaxFor;
 							potential[j] = (int) (prevCell ? ins.arg[_j].val() : ins.arg[_j].val() * MULTIPLIER);
 							prevCell = false;
@@ -261,11 +299,11 @@ public class IGB_CL1 {
 							prevCell = false;
 
 						} else if(syntaxS.equals("P")) {
-							if(ins.arg[_j].str() != null) {
+							if(ins.arg[_j].isString()) {
 								if(ins.arg[_j].str().charAt(0) != ':')
 									throw new IGB_Compiler_L1_Exception(i, "Line: " + (x + 2) + "  Pointer name has to start with \':\'.");
 
-								String pointerName = ins.arg[_j].str().substring(1);
+								String pointerName = ins.arg[_j].str();
 								int pointerCell = pointers.getOrDefault(pointerName, -1);
 								if(pointerCell == -1)
 									throw new IGB_Compiler_L1_Exception(i, "Line: " + (x + 2) + "  Pointer: \"" + pointerName + "\" doesn't exist.");
@@ -273,7 +311,7 @@ public class IGB_CL1 {
 							} else if(ins.arg[_j].isValue())
 								potential[j] = (int) ins.arg[_j].val();
 
-						} else if(syntaxS.substring(0, syntaxS.indexOf('|')).equals(ins.arg[_j].str())) {
+						} else if(ins.arg[_j].isString() && syntaxS.substring(0, syntaxS.indexOf('|')).equals(ins.arg[_j].str())) {
 							potential[j] = Utils.parseInt(syntaxS.substring(syntaxS.indexOf('|') + 1));
 							prevCell = false;
 						} else
