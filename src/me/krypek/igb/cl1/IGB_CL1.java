@@ -1,13 +1,5 @@
 package me.krypek.igb.cl1;
 
-import static me.krypek.igb.cl1.InstType.Add;
-import static me.krypek.igb.cl1.InstType.Cell;
-import static me.krypek.igb.cl1.InstType.Copy;
-import static me.krypek.igb.cl1.InstType.Device;
-import static me.krypek.igb.cl1.InstType.If;
-import static me.krypek.igb.cl1.InstType.Init;
-import static me.krypek.igb.cl1.InstType.Math;
-import static me.krypek.igb.cl1.InstType.Pixel;
 import static me.krypek.igb.cl1.InstType.Pointer;
 
 import java.io.BufferedReader;
@@ -134,6 +126,8 @@ public class IGB_CL1 {
 
 	public IGB_CL1() { syntax = getSyntax(); }
 
+	private static int temp;
+
 	public int[][][] compile(String[][] inputs, String[] paths, IGB_L1[] l1A, String[] names, int pesSize) {
 		assert inputs.length == paths.length;
 		assert l1A.length == names.length;
@@ -149,7 +143,10 @@ public class IGB_CL1 {
 			if(startline == null)
 				throw new IGB_Compiler_L1_Exception("After \"Startline \" you need to put an valid integer.");
 			for (int x = 1; x < in.length; x++) {
-				Instruction inst = stringToInstruction(inputs[i][x], x);
+				temp = x + 1;
+				Instruction inst = Instruction.stringToInstruction(inputs[i][x], str -> {
+					return new IGB_Compiler_L1_Exception("Syntax error at line " + temp + ": " + str);
+				});
 				if(inst != null)
 					list.add(inst);
 			}
@@ -176,7 +173,10 @@ public class IGB_CL1 {
 			if(startline == null)
 				throw new IGB_Compiler_L1_Exception("After \"Startline \" you need to put an valid integer.");
 			for (int x = 1; x < in.length; x++) {
-				Instruction inst = stringToInstruction(inputs[i][x], x);
+				temp = x + 1;
+				Instruction inst = Instruction.stringToInstruction(inputs[i][x], str -> {
+					return new IGB_Compiler_L1_Exception("Syntax error at line " + temp + ": " + str);
+				});
 				if(inst != null)
 					list.add(inst);
 			}
@@ -184,44 +184,6 @@ public class IGB_CL1 {
 		}
 
 		return compile(igb_l1_Arr, paths, pesSize);
-	}
-
-	public Instruction stringToInstruction(String str, int line) {
-		if(str.isBlank())
-			return null;
-
-		if(str.startsWith(":")) {
-			return Instruction.Pointer(str);
-		}
-		String[] sp = str.split(" ");
-		InstType type = switch (sp[0].toLowerCase()) {
-		case "if" -> If;
-		case "init" -> Init;
-		case "copy" -> Copy;
-		case "add" -> Add;
-		case "cell" -> Cell;
-		case "pixel" -> Pixel;
-		case "device" -> Device;
-		case "math" -> Math;
-		default -> throw new IGB_Compiler_L1_Exception("Syntax error at line " + (line + 1) + ": " + sp[0]);
-		};
-
-		Instruction inst = new Instruction(type, sp.length - 1);
-		for (int i = 1; i < sp.length; i++) {
-			String arg = sp[i];
-			if(arg.equals("n"))
-				inst.arg[i - 1] = new InstArgBool(false);
-			else if(arg.equals("c"))
-				inst.arg[i - 1] = new InstArgBool(true);
-			else {
-				Double val = Utils.parseDouble(sp[i]);
-				if(val == null)
-					inst.arg[i - 1] = new InstArgStr(sp[i]);
-				else
-					inst.arg[i - 1] = new InstArgVal(val);
-			}
-		}
-		return inst;
 	}
 
 	public int[][][] compile(IGB_L1[] igb_l1_Arr, String[] paths, int pesSize) {

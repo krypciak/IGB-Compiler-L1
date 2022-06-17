@@ -1,16 +1,11 @@
 package me.krypek.igb.cl1;
 
-import static me.krypek.igb.cl1.InstType.Add;
-import static me.krypek.igb.cl1.InstType.Cell;
-import static me.krypek.igb.cl1.InstType.Copy;
-import static me.krypek.igb.cl1.InstType.Device;
-import static me.krypek.igb.cl1.InstType.If;
-import static me.krypek.igb.cl1.InstType.Init;
-import static me.krypek.igb.cl1.InstType.Math;
-import static me.krypek.igb.cl1.InstType.Pixel;
-import static me.krypek.igb.cl1.InstType.Pointer;
+import static me.krypek.igb.cl1.InstType.*;
 
 import java.io.Serializable;
+
+import me.krypek.utils.Utils;
+import me.krypek.utils.Utils.Generator;
 
 public class Instruction implements Serializable {
 	private static final long serialVersionUID = -3326258133861457917L;
@@ -44,6 +39,45 @@ public class Instruction implements Serializable {
 	public static InstArg get(boolean bool) { return new InstArgBool(bool); }
 
 	public static InstArg get(String str) { return new InstArgStr(str); }
+
+	public static Instruction stringToInstruction(String str, Generator<String, ? extends RuntimeException> gene) {
+		if(str.isBlank() || str.charAt(0) == '#')
+			return null;
+
+		if(str.startsWith(":")) {
+			return Instruction.Pointer(str);
+		}
+
+		String[] sp = str.split(" ");
+		InstType type = switch (sp[0].toLowerCase()) {
+		case "if" -> If;
+		case "init" -> Init;
+		case "copy" -> Copy;
+		case "add" -> Add;
+		case "cell" -> Cell;
+		case "pixel" -> Pixel;
+		case "device" -> Device;
+		case "math" -> Math;
+		default -> throw gene.get(sp[0]);
+		};
+
+		Instruction inst = new Instruction(type, sp.length - 1);
+		for (int i = 1; i < sp.length; i++) {
+			String arg = sp[i];
+			if(arg.equals("n"))
+				inst.arg[i - 1] = new InstArgBool(false);
+			else if(arg.equals("c"))
+				inst.arg[i - 1] = new InstArgBool(true);
+			else {
+				Double val = Utils.parseDouble(sp[i]);
+				if(val == null)
+					inst.arg[i - 1] = new InstArgStr(sp[i]);
+				else
+					inst.arg[i - 1] = new InstArgVal(val);
+			}
+		}
+		return inst;
+	}
 
 	public static Instruction If(String operation, int cell1, boolean isCell, double val2, String pointerToJump) {
 		Instruction i = new Instruction(If, 5);
