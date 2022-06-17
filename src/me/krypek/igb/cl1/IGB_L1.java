@@ -9,12 +9,19 @@ public class IGB_L1 implements Serializable {
 
 	public final Instruction[] code;
 	public final int startline;
-
+	public String path;
+	
 	public IGB_L1(int startline, Instruction[] code) {
 		this.startline = startline;
 		this.code = code;
 	}
 
+	public IGB_L1(int startline, Instruction[] code, String path) {
+		this.startline = startline;
+		this.code = code;
+		this.path = path;
+	}
+	
 	@Override
 	public String toString() { return "Startline " + startline + "\n" + Utils.arrayToString(code, "\n"); }
 }
