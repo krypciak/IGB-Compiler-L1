@@ -345,4 +345,6 @@ public class IGB_CL1 {
 	private int calcPointerLine(int line, int mapSize, int startline) { return line - mapSize - 1 + startline; }
 
 	public static int getMCRGBValue(int r, int g, int b) { return (r << 16) + (g << 8) + b; }
+	
+	public static double getMCRGBValueD(int r, int g, int b) { return (r << 16) + (g << 8) + b; }
 }
