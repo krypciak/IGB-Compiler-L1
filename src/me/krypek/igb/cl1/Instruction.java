@@ -50,15 +50,15 @@ public class Instruction implements Serializable {
 
 		String[] sp = str.split(" ");
 		InstType type = switch (sp[0].toLowerCase()) {
-		case "if" -> If;
-		case "init" -> Init;
-		case "copy" -> Copy;
-		case "add" -> Add;
-		case "cell" -> Cell;
-		case "pixel" -> Pixel;
-		case "device" -> Device;
-		case "math" -> Math;
-		default -> throw gene.get(sp[0]);
+			case "if" -> If;
+			case "init" -> Init;
+			case "copy" -> Copy;
+			case "add" -> Add;
+			case "cell" -> Cell;
+			case "pixel" -> Pixel;
+			case "device" -> Device;
+			case "math" -> Math;
+			default -> throw gene.get(sp[0]);
 		};
 
 		Instruction inst = new Instruction(type, sp.length - 1);
@@ -100,6 +100,7 @@ public class Instruction implements Serializable {
 		Instruction i = new Instruction(Copy, 2);
 		i.arg[0] = get(cell);
 		i.arg[1] = get(cellToWrite);
+		assert cellToWrite > 0;
 		return i;
 	}
 

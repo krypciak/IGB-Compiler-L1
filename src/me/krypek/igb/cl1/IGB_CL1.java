@@ -266,8 +266,8 @@ public class IGB_CL1 {
 									throw new IGB_Compiler_L1_Exception(i, "Line: " + (x + 2) + "  Pointer name has to start with \':\'.");
 
 								String pointerName = ins.arg[_j].str();
-								int pointerCell = pointers.getOrDefault(pointerName, -1);
-								if(pointerCell == -1)
+								int pointerCell = pointers.getOrDefault(pointerName, -100);
+								if(pointerCell == -100)
 									throw new IGB_Compiler_L1_Exception(i, "Line: " + (x + 2) + "  Pointer: \"" + pointerName + "\" doesn't exist.");
 								potential[j] = pointerCell;
 							} else if(ins.arg[_j].isValue())
