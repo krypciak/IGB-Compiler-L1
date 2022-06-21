@@ -25,6 +25,7 @@ public class IGB_MA {
 	public static final int CHARLIB_CHAR = 56;
 	public static final int CHARLIB_X = 57;
 	public static final int CHARLIB_Y = 58;
+	//is used as a temp variable
 	public static final int CHARLIB_SPACING = 59;
 
 	public static final int EQ_TEMP1_THREAD0 = 60;
