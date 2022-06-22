@@ -100,7 +100,7 @@ public class Instruction implements Serializable {
 		Instruction i = new Instruction(Copy, 2);
 		i.arg[0] = get(cell);
 		i.arg[1] = get(cellToWrite);
-		assert cellToWrite > 0;
+		assert cellToWrite >= 0;
 		return i;
 	}
 
