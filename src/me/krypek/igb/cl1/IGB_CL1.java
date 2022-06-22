@@ -283,7 +283,10 @@ public class IGB_CL1 {
 							potential[0] = ins.type.ordinal();
 
 							if(ret == null) {
-								pes[startline + x - pointerCount] = potential;
+								final int index = startline + x - pointerCount;
+								assert potential != null;
+								
+								pes[index] = potential;
 							} else
 								ret[i][x + 1 - pointerCount] = potential;
 							continue instFor;
@@ -345,6 +348,6 @@ public class IGB_CL1 {
 	private int calcPointerLine(int line, int mapSize, int startline) { return line - mapSize - 1 + startline; }
 
 	public static int getMCRGBValue(int r, int g, int b) { return (r << 16) + (g << 8) + b; }
-	
+
 	public static double getMCRGBValueD(int r, int g, int b) { return (r << 16) + (g << 8) + b; }
 }

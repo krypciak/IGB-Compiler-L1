@@ -26,7 +26,7 @@ Device|6 Log|2 @ d
 
 Math|7 -|0 i @ d i
 Math|7 *|1 i @ d i
-Math|7 /|2 ? @ d i
+Math|7 /|2 i @ d i
 Math|7 %|3 i @ d i
 Math|7 R|4 i i i
 Math|7 CC|5 i i
