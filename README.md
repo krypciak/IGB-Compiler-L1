@@ -92,10 +92,73 @@ The full list can be seen [here](/src/me/krypek/igb/cl1/IGB_MA.java).
 &emsp; Pops the stack and sets the current cell to it
 
 ### 5. Pixel
-The screen type (`cell 3`) determinates which syntax will do what at runtime.  
+&emsp; The screen type (`cell 3`) determinates which syntax will do what at runtime.  
+&emsp; I recommend that you read about more about pixel cache [here](https://github.com/krypciak/IGB-VM/blob/main/README.md#pixel-cache).  
 <br />
-RGB synax:
-- `Pixel Cache @ i @ i @ i`
-Sets the pixel cache to the arguments.  
-If all arguments are `d`, the cache is computed at compile-time.  
-Read more about pixel cache [here](https://github.com/krypciak/IGB-VM)
+- `Pixel @ i @ i`  
+&emsp; Sets the pixel at x=`arg2 / |arg2|`, y=`arg4 / |arg4|` with the color stored in the pixel cache.
+
+- `Pixel Cache Raw i`  
+&emsp; Sets the pixel cache to `arg3`  
+<br />
+&emsp; RGB exclusive synax:
+
+- `Pixel Cache @ i @ i @ i`  
+&emsp; Calculated at runtime the pixel cache from the arguments. (`arg3` is r, `arg5` is g, `arg7` is b)  
+&emsp; If all arguments are `d`, the cache is computed at compile-time and the instruction is swapped with `Pixel Cache Raw`.  
+
+- `Pixel @ i @ i i`  
+&emsp; Gets the rgb color from pixel at x=`arg2 / |arg2|`, y=`arg4 / |arg4|` and
+  - r is writen to cell `arg5`
+  - g is written to cell `arg5`+1
+  - b is written to cell `arg5`+2
+<br />
+&emsp; 16c exclusive synax:<br />
+
+- `Pixel Cache i`  
+&emsp; Sets pixel cache to cell `arg2`  
+
+- `Pixel @ i @ i i`  
+&emsp; Gets the 16c color from pixel at x=`arg2 / |arg2|`, y=`arg4 / |arg4|` and writes it to `arg5`  
+
+### 6. Device  
+- `Device CoreWait i`  
+&emsp; Waits `arg2` ticks (a tick is 1/20 of a second)  
+
+- `Device ScreenUpdate`  
+&emsp; Resizes the screen based on the [cells in memory](https://github.com/krypciak/IGB-Compiler-L1/edit/main/README.md#memory-cells) and filles it with #FFFFFF  
+
+- `Device Log @ d`  
+&emsp; Prints `arg3 / |arg3|` to the terminal/chat.  
+
+### 7. Math  
+
+- Syntax for `-` `*` `/` `%` operations: `Math *operation* i @ d i`  
+&emsp; It does what you think.  
+
+- Syntax for random: `Math R i i i`  
+&emsp; Writes a random number from `arg2` to `arg3` to cell `arg4`  
+<br />
+
+- Syntax for `CC`: `Math CC i i`  
+&emsp; It reads the value from cell `arg2`, then reads the value at cell it just read, then writes in to cell `arg3`  
+&emsp; If you assume ram is an array, then that's how it works:  
+&emsp; `ram[ arg3 ] = ram[ ram[ arg2 ] ]`  
+&emsp; Used for reading from arrays.  
+<br />
+
+- Syntax for `CW`: `Math CW i i`  
+&emsp; Writes value from cell `arg2` to cell read from cell `arg3`  
+&emsp; If you assume ram is an array, then that's how it works:  
+&emsp; `ram[ ram[ arg3 ] ] = ram[ arg2 ]`  
+&emsp; Used for writing to arrays.  
+
+- Synax for sqrt: `Math sqrt i i`  
+Writes the square root of cell `arg2` to cell `arg3`  
+
+
+<br /><br /><br />
+
+# License
+Licensed under GNU GPLv3 or later
+
