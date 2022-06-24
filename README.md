@@ -8,7 +8,7 @@ The instruction set file can be seen [here](/resources/commandSet.txt).
 ## Commant set symbol explanation:
 - `*string*|*number*` If the current argument equals *string*, *number* is returned.
 - `i` The input value is returned as it is.
-- `d` The input value gets multiplied by 1000
+- `d` The input value gets multiplied by 1000  (learn why [here](https://github.com/krypciak/IGB-VM/edit/main/README.md#floating-points-values))
 - `@` accepts two arguments:  
   - `n` that returns 0  
   - `c` that returns 1  
@@ -37,15 +37,15 @@ That instruction can be translated into `|12| = |10| % 12`
 ## Memory cells  
 There are cells allocated for the [IGB VM](https://github.com/krypciak/IGB-VM).
 You are safe to use cells 70 or above.
-Here are some more important cells:
-0. Function return
-1. Screen width
-2. Screen height
-3. Screen type (`0=16c`, `1=rgb`) (more explained later)
-4. Keyboard input char
-56. [charLib](https://github.com/krypciak/IGB-charLib) char code
-57. [charLib](https://github.com/krypciak/IGB-charLib) char x
-58. [charLib](https://github.com/krypciak/IGB-charLib) char y  
+Here are some more important cells:  
+&emsp; 0 - Function return  
+&emsp; 1 - Screen width  
+&emsp; 2 - Screen height  
+&emsp; 3 - Screen type (`0=16c`, `1=rgb`)  
+&emsp; 4 - Keyboard input char  
+&emsp; 56 - [charLib](https://github.com/krypciak/IGB-charLib) char code  
+&emsp; 57 - [charLib](https://github.com/krypciak/IGB-charLib) char x  
+&emsp; 58 - [charLib](https://github.com/krypciak/IGB-charLib) char y  
 
 The full list can be seen [here](/src/me/krypek/igb/cl1/IGB_MA.java).
 <br /><br />
