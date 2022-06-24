@@ -158,6 +158,10 @@ Writes the square root of cell `arg2` to cell `arg3`
 
 
 <br /><br /><br />
+## Dependencies:
+- [FreeArgParser-Java](https://github.com/krypciak/FreeArgParser-Java)
+- [Utils](https://github.com/krypciak/Utils)
+
 
 # License
 Licensed under GNU GPLv3 or later
