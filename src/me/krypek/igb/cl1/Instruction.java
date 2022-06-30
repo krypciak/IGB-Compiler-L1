@@ -178,11 +178,12 @@ public class Instruction implements Serializable {
 	}
 
 	public static Instruction Pixel(boolean isCell1, int x, boolean isCell2, double y) {
-		Instruction i = new Instruction(Pixel, 4);
+		Instruction i = new Instruction(Pixel, 5);
 		i.arg[0] = get(isCell1);
 		i.arg[1] = get(x);
 		i.arg[2] = get(isCell2);
 		i.arg[3] = get(y);
+		i.arg[4] = get(-1);
 		return i;
 	}
 
