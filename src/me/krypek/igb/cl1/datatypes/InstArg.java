@@ -1,4 +1,4 @@
-package me.krypek.igb.cl1;
+package me.krypek.igb.cl1.datatypes;
 
 import java.io.Serializable;
 

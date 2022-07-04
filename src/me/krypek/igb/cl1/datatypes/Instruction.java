@@ -1,19 +1,28 @@
-package me.krypek.igb.cl1;
+package me.krypek.igb.cl1.datatypes;
 
-import static me.krypek.igb.cl1.InstType.*;
+import static me.krypek.igb.cl1.datatypes.InstType.*;
 
 import java.io.Serializable;
+import java.util.HashMap;
 
+import me.krypek.igb.cl1.IGB_CL1;
+import me.krypek.igb.cl1.IGB_CL1_Exception;
 import me.krypek.utils.Utils;
-import me.krypek.utils.Utils.Generator;
 
 public class Instruction implements Serializable {
 	private static final long serialVersionUID = -3326258133861457917L;
 
+	public int[] compile(L1Syntax syntax, HashMap<String, Integer> pointers) {
+		if(type == Pointer)
+			throw new IGB_CL1_Exception("Pointers cannot be compiled.");
+
+		return syntax.match(this, pointers);
+	}
+
 	@Override
 	public String toString() {
 		if(type == Pointer)
-			return arg[0].str();
+			return getPointerName();
 		StringBuilder sb = new StringBuilder(type.toString());
 
 		for (int i = 0; i < argLen; i++) { sb.append(" "); sb.append(arg[i].toString()); }
@@ -40,7 +49,14 @@ public class Instruction implements Serializable {
 
 	public static InstArg get(String str) { return new InstArgStr(str); }
 
-	public static Instruction stringToInstruction(String str, Generator<String, ? extends RuntimeException> gene) {
+	public String getPointerName() {
+		if(type != Pointer) {
+			throw new IGB_CL1_Exception("Cannot get a pointer name when the instruciton is not a pointer.");
+		}
+		return arg[0].str();
+	}
+
+	public static Instruction stringToInstruction(String str, java.util.function.Function<String, ? extends RuntimeException> gene) {
 		if(str.isBlank() || str.charAt(0) == '#')
 			return null;
 
@@ -58,7 +74,7 @@ public class Instruction implements Serializable {
 			case "pixel" -> Pixel;
 			case "device" -> Device;
 			case "math" -> Math;
-			default -> throw gene.get(sp[0]);
+			default -> throw gene.apply(sp[0]);
 		};
 
 		Instruction inst = new Instruction(type, sp.length - 1);
