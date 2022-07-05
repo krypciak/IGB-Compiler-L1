@@ -2,6 +2,8 @@ package me.krypek.igb.cl1;
 
 //IGB Memory Allocation
 public class IGB_MA {
+	public static int INVALID_INT = 0 - 987698;
+
 	public static final int FUNC_RETURN = 0;
 	public static final int SCREEN_WIDTH = 1;
 	public static final int SCREEN_HEIGHT = 2;
@@ -25,7 +27,7 @@ public class IGB_MA {
 	public static final int CHARLIB_CHAR = 56;
 	public static final int CHARLIB_X = 57;
 	public static final int CHARLIB_Y = 58;
-	//is used as a temp variable
+	// is used as a temp variable
 	public static final int CHARLIB_SPACING = 59;
 
 	public static final int EQ_TEMP1_THREAD0 = 60;

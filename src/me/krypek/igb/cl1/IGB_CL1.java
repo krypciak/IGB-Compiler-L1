@@ -33,7 +33,7 @@ public class IGB_CL1 {
 				.add("ws", "workspacePath", false, false, ArgType.String, 		"Workspace path. If selected, will write bins.")
 				.add("ro", "readableOutput",false, false, ArgType.None, 		"If selected, will save readable binaries insted.")
 				.add("q",  "quiet",  		false, false, ArgType.None, 		"If selected, won't print out output.")
-				.add("ps", "printSyntax", 	false, false, ArgType.Boolean, 		"If selected, will print out syntax.")
+				.add("ps", "printSyntax", 	false, false, ArgType.None, 		"If selected, will print out syntax.")
 				.parse(args);
 		//@f:on
 
@@ -43,7 +43,7 @@ public class IGB_CL1 {
 		final boolean quiet = data.has("q");
 		final boolean printSyntax = data.has("ps");
 
-		IGB_CL1 cl1 = new IGB_CL1(quiet, printSyntax);
+		IGB_CL1 cl1 = new IGB_CL1(quiet, printSyntax, true, true);
 
 		IGB_L1[] l1s = Stream.of(filePaths).map(path -> {
 			String contents = Utils.readFromFile(path, "\n");
@@ -67,11 +67,13 @@ public class IGB_CL1 {
 	private record L1SyntaxTEMP(InstType type, SyntaxArg[] syntax) {}
 
 	private L1Syntax syntax;
-	private final boolean quiet, printSyntax;
+	private final boolean quiet, printSyntax, printOutput, printPointers;
 
-	public IGB_CL1(boolean quiet, boolean printSyntax) {
+	public IGB_CL1(boolean quiet, boolean printSyntax, boolean printOutput, boolean printPointers) {
 		this.quiet = quiet;
 		this.printSyntax = printSyntax;
+		this.printOutput = printOutput;
+		this.printPointers = printPointers;
 	}
 
 	public IGB_Binary[] compile(IGB_L1[] l1s) {
@@ -92,7 +94,7 @@ public class IGB_CL1 {
 		for (int i = 0; i < len; i++)
 			bins[i] = l1s[i].compile(syntax, pointers, pointerCounts[i]);
 
-		if(!quiet)
+		if(!quiet && printOutput)
 			Stream.of(bins).forEach(System.out::println);
 
 		return bins;
@@ -121,7 +123,7 @@ public class IGB_CL1 {
 			allPointers.putAll(pointers);
 		}
 
-		if(!quiet)
+		if(!quiet && printPointers)
 			System.out.println(pointersToString(allPointers));
 
 		return new Pair<>(pointerCounts, allPointers);

@@ -5,11 +5,11 @@ import java.util.HashMap;
 import me.krypek.igb.cl1.IGB_CL1_Exception;
 import me.krypek.utils.Utils;
 
+import static me.krypek.igb.cl1.IGB_MA.INVALID_INT;
+
 public interface SyntaxArg {
 
 	public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers);
-
-	public static int INVALID_INT = Integer.MIN_VALUE + 1543;
 
 	public static SyntaxArg get(String arg) {
 		return switch (arg.toLowerCase()) {
@@ -60,7 +60,7 @@ public interface SyntaxArg {
 
 		public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers) {
 			if(arg.isValue()) {
-				if(prevArg != null && prevArg.isBool() && !prevArg.bool())
+				if(prevArg == null || (prevArg.isBool() && !prevArg.bool()))
 					return (int) (arg.val() * 1000);
 				else {
 					assert arg.val() % 1 == 0;
