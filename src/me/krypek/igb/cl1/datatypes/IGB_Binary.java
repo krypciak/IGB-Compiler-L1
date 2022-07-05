@@ -2,7 +2,9 @@ package me.krypek.igb.cl1.datatypes;
 
 import java.io.Serializable;
 
-public record IGB_Binary(int startline, int[][] bin) implements Serializable {
+import me.krypek.utils.Utils;
+
+public record IGB_Binary(int startline, int[][] bin, String name) implements Serializable {
 
 	private static String seperator = "\t----------------------------------------------------------\n";
 
@@ -24,4 +26,8 @@ public record IGB_Binary(int startline, int[][] bin) implements Serializable {
 		sb.append('\n');
 		return sb.toString();
 	}
+
+	public void serialize(String path) { Utils.serialize(this, path); }
+
+	public void writeReadable(String path) { Utils.writeIntoFile(path, this.toString()); }
 }

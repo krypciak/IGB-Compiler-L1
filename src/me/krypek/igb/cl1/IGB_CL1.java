@@ -3,6 +3,7 @@ package me.krypek.igb.cl1;
 import static me.krypek.igb.cl1.datatypes.InstType.Pointer;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashMap;
@@ -29,7 +30,7 @@ public class IGB_CL1 {
 		//@f:off
 		ParsedData data = new ParserBuilder()
 				.add("cp", "codepath", 		true,  false, ArgType.StringArray, 	"Array of code paths.")
-				.add("op", "outputpath", 	false, false, ArgType.String, 		"Output directory path.")
+				.add("ws", "workspacePath", false, false, ArgType.String, 		"Workspace path. If selected, will write bins.")
 				.add("ro", "readableOutput",false, false, ArgType.None, 		"If selected, will save readable binaries insted.")
 				.add("q",  "quiet",  		false, false, ArgType.None, 		"If selected, won't print out output.")
 				.add("ps", "printSyntax", 	false, false, ArgType.Boolean, 		"If selected, will print out syntax.")
@@ -37,7 +38,7 @@ public class IGB_CL1 {
 		//@f:on
 
 		final String[] filePaths = data.getStringArray("cp");
-		final String fileOutput = data.getStringOrDef("op", null);
+		String workspacePath = data.getStringOrDef("ws", null);
 		final boolean readableOutput = data.has("ro");
 		final boolean quiet = data.has("q");
 		final boolean printSyntax = data.has("ps");
@@ -52,7 +53,15 @@ public class IGB_CL1 {
 		}).toArray(IGB_L1[]::new);
 
 		IGB_Binary[] bins = cl1.compile(l1s);
+		if(workspacePath != null) {
+			workspacePath = new File(workspacePath + "/BIN").getAbsolutePath() + '/';
 
+			for (IGB_Binary bin : bins) {
+				bin.serialize(workspacePath + bin.name() + ".igb_bin");
+				if(readableOutput)
+					bin.writeReadable(workspacePath + bin.name() + ".igb_bin_readable");
+			}
+		}
 	}
 
 	private record L1SyntaxTEMP(InstType type, SyntaxArg[] syntax) {}
@@ -104,7 +113,7 @@ public class IGB_CL1 {
 					continue;
 				String pointerName = inst.getPointerName();
 				if(allPointers.containsKey(pointerName) || pointers.containsKey(pointerName))
-					throw new IGB_CL1_Exception("Line: " + (x + 1) + "  Pointer: \"" + pointerName + "\" already exists.");
+					throw new IGB_CL1_Exception(new File(l1.path()), x + 1, "Pointer: \"" + pointerName + "\" already exists.");
 
 				pointers.put(inst.getPointerName(), x - allPointers.size() - pointers.size() - 1 + l1.startline());
 			}

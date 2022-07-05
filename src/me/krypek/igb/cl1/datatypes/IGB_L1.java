@@ -30,7 +30,7 @@ public record IGB_L1(int startline, Instruction[] code, String name, String path
 		}
 		assert pointerCountVerify == pointerCount;
 
-		return new IGB_Binary(startline, bin);
+		return new IGB_Binary(startline, bin, name);
 	}
 
 	private static int i;
@@ -55,7 +55,27 @@ public record IGB_L1(int startline, Instruction[] code, String name, String path
 
 			instList.add(Instruction.stringToInstruction(line, str -> new IGB_CL1_Exception(new File(path), i, "Unknown instruction: \"" + str + "\".")));
 		}
-
+		if(name.endsWith(".igb_l1_readable")) {
+			name = name.substring(0, name.length() - ".igb_l1_readable".length());
+		}
 		return new IGB_L1(startline, instList.toArray(Instruction[]::new), name, path);
 	}
+
+	public void serialize(String path) { Utils.serialize(this, path); }
+
+	@Override
+	public String toString() {
+		StringBuilder sb = new StringBuilder(code.length * 80);
+		sb.append("Startline ");
+		sb.append(startline);
+
+		for (Instruction inst : code) {
+			sb.append('\n');
+			sb.append(inst.toString());
+
+		}
+		return sb.toString();
+	}
+
+	public void writeReadable(String path) { Utils.writeIntoFile(path, this.toString()); }
 }
