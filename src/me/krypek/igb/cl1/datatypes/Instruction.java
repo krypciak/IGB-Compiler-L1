@@ -3,7 +3,7 @@ package me.krypek.igb.cl1.datatypes;
 import static me.krypek.igb.cl1.datatypes.InstType.*;
 
 import java.io.Serializable;
-import java.util.HashMap;
+import java.util.Map;
 
 import me.krypek.igb.cl1.IGB_CL1;
 import me.krypek.igb.cl1.IGB_CL1_Exception;
@@ -12,7 +12,7 @@ import me.krypek.utils.Utils;
 public class Instruction implements Serializable {
 	private static final long serialVersionUID = -3326258133861457917L;
 
-	public int[] compile(L1Syntax syntax, HashMap<String, Integer> pointers) {
+	public int[] compile(L1Syntax syntax, Map<String, Integer> pointers) {
 		if(type == Pointer)
 			throw new IGB_CL1_Exception("Pointers cannot be compiled.");
 

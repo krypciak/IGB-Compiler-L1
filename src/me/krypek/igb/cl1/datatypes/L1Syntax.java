@@ -1,14 +1,14 @@
 package me.krypek.igb.cl1.datatypes;
 
-import java.util.HashMap;
+import static me.krypek.igb.cl1.IGB_MA.INVALID_INT;
+
+import java.util.Map;
 
 import me.krypek.igb.cl1.IGB_CL1_Exception;
 
-import static me.krypek.igb.cl1.IGB_MA.INVALID_INT;
-
 public record L1Syntax(SyntaxArg[][][] syntax) {
 
-	public int[] match(Instruction inst, HashMap<String, Integer> pointers) {
+	public int[] match(Instruction inst, Map<String, Integer> pointers) {
 		InstArg[] args = inst.arg;
 		final int typeOrdinal = inst.type.ordinal();
 		SyntaxArg[][] syntax2 = syntax[typeOrdinal];

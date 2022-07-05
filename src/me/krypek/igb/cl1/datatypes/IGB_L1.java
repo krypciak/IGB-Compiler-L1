@@ -5,15 +5,15 @@ import static me.krypek.igb.cl1.datatypes.InstType.Pointer;
 import java.io.File;
 import java.io.Serializable;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import me.krypek.igb.cl1.IGB_CL1_Exception;
 import me.krypek.utils.Utils;
 
 public record IGB_L1(int startline, Instruction[] code, String name, String path) implements Serializable {
 
-	public IGB_Binary compile(L1Syntax syntax, HashMap<String, Integer> pointers, int pointerCount) {
+	public IGB_Binary compile(L1Syntax syntax, Map<String, Integer> pointers, int pointerCount) {
 		final int clen = code.length;
 		final int binlen = clen - pointerCount;
 		int[][] bin = new int[binlen][8];

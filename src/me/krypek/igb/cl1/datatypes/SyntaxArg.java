@@ -1,15 +1,15 @@
 package me.krypek.igb.cl1.datatypes;
 
-import java.util.HashMap;
+import static me.krypek.igb.cl1.IGB_MA.INVALID_INT;
+
+import java.util.Map;
 
 import me.krypek.igb.cl1.IGB_CL1_Exception;
 import me.krypek.utils.Utils;
 
-import static me.krypek.igb.cl1.IGB_MA.INVALID_INT;
-
 public interface SyntaxArg {
 
-	public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers);
+	public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers);
 
 	public static SyntaxArg get(String arg) {
 		return switch (arg.toLowerCase()) {
@@ -28,7 +28,7 @@ public interface SyntaxArg {
 	}
 
 	static record SyntaxArgString(String str, int val) implements SyntaxArg {
-		public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers) {
+		public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers) {
 			return arg.isString() && arg.str().equals(str) ? val : INVALID_INT;
 		}
 
@@ -38,15 +38,25 @@ public interface SyntaxArg {
 	}
 
 	static record SyntaxArgPointer() implements SyntaxArg {
-		public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers) {
+		public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers) {
 			if(arg.isValue()) {
 				assert arg.val() % 1 == 0;
+
+				if(arg.val() == -920) {
+					System.out.println("way");
+				}
+
 				return (int) arg.val();
 			} else if(arg.isString()) {
 				String pointerName = arg.str();
 				int line = pointers.getOrDefault(pointerName, INVALID_INT);
 				if(line == INVALID_INT)
 					throw new IGB_CL1_Exception("Pointer: \"" + pointerName + "\" doesn't exist.");
+
+				if(line == -920) {
+					System.out.println("way");
+				}
+
 				return line;
 			} else
 				return INVALID_INT;
@@ -58,7 +68,7 @@ public interface SyntaxArg {
 
 	static record SyntaxArgDouble() implements SyntaxArg {
 
-		public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers) {
+		public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers) {
 			if(arg.isValue()) {
 				if(prevArg == null || (prevArg.isBool() && !prevArg.bool()))
 					return (int) (arg.val() * 1000);
@@ -76,7 +86,7 @@ public interface SyntaxArg {
 
 	static record SyntaxArgInteger() implements SyntaxArg {
 
-		public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers) {
+		public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers) {
 			if(arg.isValue()) {
 				assert arg.val() % 1 == 0;
 				return (int) arg.val();
@@ -90,7 +100,7 @@ public interface SyntaxArg {
 
 	static record SyntaxArgBool() implements SyntaxArg {
 
-		public int match(InstArg prevArg, InstArg arg, HashMap<String, Integer> pointers) { return arg.isBool() ? (arg.bool() ? 1 : 0) : INVALID_INT; }
+		public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers) { return arg.isBool() ? (arg.bool() ? 1 : 0) : INVALID_INT; }
 
 		@Override
 		public String toString() { return "@"; }

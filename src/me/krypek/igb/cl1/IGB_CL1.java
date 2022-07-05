@@ -6,8 +6,8 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.util.HashMap;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.stream.Stream;
 
@@ -86,8 +86,8 @@ public class IGB_CL1 {
 		if(syntax == null)
 			syntax = getSyntax(printSyntax);
 
-		Pair<int[], HashMap<String, Integer>> pair = getAllPointers(l1s);
-		HashMap<String, Integer> pointers = pair.getSecond();
+		Pair<int[], Map<String, Integer>> pair = getAllPointers(l1s);
+		Map<String, Integer> pointers = pair.getSecond();
 
 		int[] pointerCounts = pair.getFirst();
 
@@ -100,15 +100,15 @@ public class IGB_CL1 {
 		return bins;
 	}
 
-	public Pair<int[], HashMap<String, Integer>> getAllPointers(IGB_L1[] l1s) {
+	public Pair<int[], Map<String, Integer>> getAllPointers(IGB_L1[] l1s) {
 		final int len = l1s.length;
 		int[] pointerCounts = new int[len];
-		HashMap<String, Integer> allPointers = new HashMap<>();
+		LinkedHashMap<String, Integer> allPointers = new LinkedHashMap<>();
 
 		for (int i = 0; i < len; i++) {
 			IGB_L1 l1 = l1s[i];
 			Instruction[] code = l1.code();
-			HashMap<String, Integer> pointers = new HashMap<>();
+			LinkedHashMap<String, Integer> pointers = new LinkedHashMap<>();
 			for (int x = 0; x < code.length; x++) {
 				Instruction inst = code[x];
 				if(inst.type != Pointer)
@@ -117,7 +117,7 @@ public class IGB_CL1 {
 				if(allPointers.containsKey(pointerName) || pointers.containsKey(pointerName))
 					throw new IGB_CL1_Exception(new File(l1.path()), x + 1, "Pointer: \"" + pointerName + "\" already exists.");
 
-				pointers.put(inst.getPointerName(), x - allPointers.size() - pointers.size() - 1 + l1.startline());
+				pointers.put(inst.getPointerName(), x - pointers.size() - 1 + l1.startline());
 			}
 			pointerCounts[i] = pointers.size();
 			allPointers.putAll(pointers);
@@ -125,24 +125,49 @@ public class IGB_CL1 {
 
 		if(!quiet && printPointers)
 			System.out.println(pointersToString(allPointers));
-
 		return new Pair<>(pointerCounts, allPointers);
 	}
 
-	private String pointersToString(HashMap<String, Integer> pointers) {
+	private String pointersToString(LinkedHashMap<String, Integer> pointers) {
 		StringBuilder sb = new StringBuilder(pointers.size() * 30);
 		sb.append("Pointers: {");
-		Iterator<Map.Entry<String, Integer>> iterator = pointers.entrySet().iterator();
+		Iterator<Map.Entry<String, Integer>> iterator = pointers.entrySet().stream().sorted((o1, o2) -> o1.getValue() - o2.getValue()).iterator();
 
+		final int len = 40;
+		int buffer = 0;
 		for (int i = 0; iterator.hasNext(); i++) {
 			Map.Entry<String, Integer> entry = iterator.next();
-			if(i % 5 == 0)
+			if(i % 5 == 0) {
 				sb.append('\n');
+				sb.append('\t');
+				buffer = 0;
+			}
 
-			sb.append('\t');
-			sb.append(entry.getKey());
-			sb.append('=');
-			sb.append(entry.getValue());
+			String str = entry.getKey() + '=' + entry.getValue();
+			sb.append(str);
+
+			if(i % 5 != 4) {
+				int spaces = len - str.length();
+				if(0 > buffer) {
+					int t1 = buffer;
+					buffer += spaces;
+					if(buffer > 0)
+						buffer = 0;
+					spaces += t1;
+				}
+				if(0 > spaces)
+					buffer = spaces;
+
+				if(spaces < 1) {
+					spaces = 1;
+					buffer--;
+				}
+
+				for (int x = 0; x < spaces; x++)
+					sb.append(' ');
+
+			}
+
 		}
 		sb.append("\n}\n");
 		return sb.toString();
