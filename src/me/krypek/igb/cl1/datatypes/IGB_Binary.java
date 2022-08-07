@@ -4,8 +4,6 @@ import java.io.Serializable;
 
 import me.krypek.utils.Utils;
 
-import static me.krypek.igb.cl1.IGB_MA.INVALID_INT;
-
 public record IGB_Binary(int startline, int[][] bin, String name) implements Serializable {
 
 	private void addSeperator(StringBuilder sb, int i) {
@@ -27,12 +25,7 @@ public record IGB_Binary(int startline, int[][] bin, String name) implements Ser
 			if(i % 3 == 0)
 				addSeperator(sb, i);
 
-			for (int val : bin[i]) {
-				if(val == INVALID_INT)
-					break;
-				sb.append('\t');
-				sb.append(val);
-			}
+			for (int val : bin[i]) { sb.append('\t'); sb.append(val); }
 			sb.append('\n');
 
 			if(i == bin.length - 1)

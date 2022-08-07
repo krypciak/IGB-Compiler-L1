@@ -16,7 +16,7 @@ public record IGB_L1(int startline, Instruction[] code, String name, String path
 	public IGB_Binary compile(L1Syntax syntax, Map<String, Integer> pointers, int pointerCount) {
 		final int clen = code.length;
 		final int binlen = clen - pointerCount;
-		int[][] bin = new int[binlen][8];
+		int[][] bin = new int[binlen][];
 
 		int pointerCountVerify = 0;
 		for (int i = 0; i < clen; i++) {

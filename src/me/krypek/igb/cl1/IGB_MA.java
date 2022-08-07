@@ -2,8 +2,6 @@ package me.krypek.igb.cl1;
 
 //IGB Memory Allocation
 public class IGB_MA {
-	public static int INVALID_INT = -587698;
-
 	public static final int FUNC_RETURN = 0;
 	public static final int SCREEN_WIDTH = 1;
 	public static final int SCREEN_HEIGHT = 2;

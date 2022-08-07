@@ -41,13 +41,13 @@ public class Instruction implements Serializable {
 		arg = new InstArg[argLen];
 	}
 
-	public static InstArg get(double val) { return new InstArgVal(val); }
+	public static InstArgVal get(double val) { return new InstArgVal(val); }
 
-	public static InstArg get(int val) { return new InstArgVal((int) val); }
+	public static InstArgVal get(int val) { return new InstArgVal((int) val); }
 
-	public static InstArg get(boolean bool) { return new InstArgBool(bool); }
+	public static InstArgBool get(boolean bool) { return new InstArgBool(bool); }
 
-	public static InstArg get(String str) { return new InstArgStr(str); }
+	public static InstArgStr get(String str) { return new InstArgStr(str); }
 
 	public String getPointerName() {
 		if(type != Pointer) {

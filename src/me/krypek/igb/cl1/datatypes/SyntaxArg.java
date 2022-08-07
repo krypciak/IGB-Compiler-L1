@@ -1,13 +1,12 @@
 package me.krypek.igb.cl1.datatypes;
 
-import static me.krypek.igb.cl1.IGB_MA.INVALID_INT;
-
 import java.util.Map;
 
 import me.krypek.igb.cl1.IGB_CL1_Exception;
 import me.krypek.utils.Utils;
 
 public interface SyntaxArg {
+	static int INVALID_INT = -5344231;
 
 	public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers);
 
@@ -41,21 +40,14 @@ public interface SyntaxArg {
 		public int match(InstArg prevArg, InstArg arg, Map<String, Integer> pointers) {
 			if(arg.isValue()) {
 				assert arg.val() % 1 == 0;
-
-				if(arg.val() == -920) {
-					System.out.println("way");
-				}
-
+				assert arg.val() > -3;
 				return (int) arg.val();
 			} else if(arg.isString()) {
 				String pointerName = arg.str();
 				int line = pointers.getOrDefault(pointerName, INVALID_INT);
 				if(line == INVALID_INT)
 					throw new IGB_CL1_Exception("Pointer: \"" + pointerName + "\" doesn't exist.");
-
-				if(line == -920) {
-					System.out.println("way");
-				}
+				assert line > -2;
 
 				return line;
 			} else
