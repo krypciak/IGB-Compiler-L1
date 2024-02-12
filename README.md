@@ -8,7 +8,7 @@ The instruction set file can be seen [here](/resources/commandSet.txt).
 ## Commant set symbol explanation:
 - `*string*|*number*` If the current argument equals *string*, *number* is returned.
 - `i` The input value is returned as it is.
-- `d` The input value gets multiplied by 1000  (learn why [here](https://github.com/krypciak/IGB-VM/edit/main/README.md#floating-points-values))
+- `d` The input value gets multiplied by 1000  (learn why [here](https://github.com/krypciak/IGB-VM?tab=readme-ov-file#floating-points-values))
 - `@` accepts two arguments:  
   - `n` that returns 0  
   - `c` that returns 1  
